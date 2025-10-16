@@ -7,6 +7,9 @@ jobs:
   build:
     name: Build image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout Repository
@@ -20,7 +23,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: saturn
-          tags: latest ${{ github.sha }} ${{ github.ref_name }}
+          tags: latest ${{ github.sha }} ${{ github.ref_name.replace('/', '-') }}
           containerfiles: |
             ./Containerfile
 
