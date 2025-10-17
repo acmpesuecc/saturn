@@ -14,6 +14,7 @@ type TimerMapValue struct {
 	timer    *time.Timer
 	duration time.Duration
 	initTime time.Time
+	emit     string // payload/message to send when timer fires
 }
 
 type TimerMap struct {

@@ -9,35 +9,35 @@ import (
 	"time"
 )
 
-func TestPauseResumeFlow(t *testing.T) {
+func TestPauseResumeFlowIntegration(t *testing.T) {
+	timer := CreateTimer("", "")
+
 	mux := http.NewServeMux()
-	mux.HandleFunc("/register", handleRegister)
-	mux.HandleFunc("/pause", handlePause)
-	mux.HandleFunc("/resume", handleResume)
-	mux.HandleFunc("/remaining", handleRemaining)
+	mux.HandleFunc("/register", timer.RegisterHandler)
+	mux.HandleFunc("/pause", timer.PauseHandler)
+	mux.HandleFunc("/resume", timer.ResumeHandler)
+	mux.HandleFunc("/remaining", timer.RemainingHandler)
 
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
 	// register 2 second timer
-	res, err := http.Post(ts.URL+"/register", "application/json",
-		strings.NewReader(`{"event_id":"test1","timeout_seconds":2,"emit":"x"}`))
+	body := `{"event_id":"itest1","timeout_seconds":2,"emit":"x"}`
+	res, err := http.Post(ts.URL+"/register", "application/json", strings.NewReader(body))
 	if err != nil {
 		t.Fatal(err)
 	}
 	res.Body.Close()
 
 	// pause immediately
-	res, err = http.Post(ts.URL+"/pause", "application/json",
-		strings.NewReader(`{"event_id":"test1"}`))
+	res, err = http.Post(ts.URL+"/pause", "application/json", strings.NewReader(`{"event_id":"itest1"}`))
 	if err != nil {
 		t.Fatal(err)
 	}
 	res.Body.Close()
 
 	// remaining should report paused
-	res, err = http.Post(ts.URL+"/remaining", "application/json",
-		strings.NewReader(`{"event_id":"test1"}`))
+	res, err = http.Post(ts.URL+"/remaining", "application/json", strings.NewReader(`{"event_id":"itest1"}`))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,8 +51,7 @@ func TestPauseResumeFlow(t *testing.T) {
 	}
 
 	// resume and allow to fire
-	res, err = http.Post(ts.URL+"/resume", "application/json",
-		strings.NewReader(`{"event_id":"test1"}`))
+	res, err = http.Post(ts.URL+"/resume", "application/json", strings.NewReader(`{"event_id":"itest1"}`))
 	if err != nil {
 		t.Fatal(err)
 	}
